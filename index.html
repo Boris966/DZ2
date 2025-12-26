@@ -1,0 +1,2896 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HabitForge — Кузница Привычек</title>
+  <meta name="description" content="Фитнес-трекер привычек с социальной ответственностью">
+  <style>
+    /* ... существующие стили остаются без изменений ... */
+    :root {
+      --primary: #2c6fbb;
+      --danger: #d32f2f;
+      --success: #388e3c;
+      --warning: #f57c00;
+      --light: #f9f9f9;
+      --dark: #333;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      background-color: var(--light);
+      color: var(--dark);
+      padding: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin: 20px 0;
+    }
+    h1 {
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 16px 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      margin: 8px 0;
+      transition: all 0.3s ease;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    button.danger {
+      background: var(--danger);
+    }
+    button.success {
+      background: var(--success);
+    }
+    button.warning {
+      background: var(--warning);
+    }
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .btn-group button {
+      flex: 1;
+      margin: 0;
+    }
+    .filter-buttons {
+      display: flex;
+      gap: 8px;
+      margin: 16px 0;
+    }
+    .filter-btn {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      text-align: center;
+    }
+    .filter-btn.active {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .filter-btn-all {
+      background: #e3f2fd;
+      color: var(--primary);
+    }
+    .filter-btn-all.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .filter-btn-active {
+      background: #fff3e0;
+      color: #e65100;
+    }
+    .filter-btn-active.active {
+      background: var(--warning);
+      color: white;
+      border-color: var(--warning);
+    }
+    .filter-btn-failed {
+      background: #ffebee;
+      color: #c62828;
+    }
+    .filter-btn-failed.active {
+      background: var(--danger);
+      color: white;
+      border-color: var(--danger);
+    }
+    .filter-btn-completed {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    .filter-btn-completed.active {
+      background: var(--success);
+      color: white;
+      border-color: var(--success);
+    }
+    .current-month-info {
+      margin: 12px 0;
+      padding: 10px;
+      background: #f0f7ff;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--primary);
+      font-weight: bold;
+      border-left: 4px solid var(--primary);
+    }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    .page-btn {
+      background: white;
+      color: var(--primary);
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 8px 12px;
+      min-width: 40px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .page-btn:hover {
+      background: #f0f7ff;
+      border-color: var(--primary);
+    }
+    .page-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .page-btn.disabled {
+      background: #f5f5f5;
+      color: #999;
+      cursor: not-allowed;
+      border-color: #eee;
+    }
+    .page-info {
+      text-align: center;
+      margin: 10px 0;
+      color: #666;
+      font-size: 14px;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    label {
+      display: block;
+      margin: 8px 0 4px;
+      font-weight: bold;
+    }
+    .progress {
+      height: 12px;
+      background: #eee;
+      border-radius: 6px;
+      margin: 12px 0;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.3s;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .status-success { background-color: var(--success); }
+    .status-skipped { background-color: var(--danger); }
+    .status-pending { background-color: #ccc; }
+    .history-list {
+      margin: 16px 0;
+    }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .history-date {
+      font-weight: bold;
+    }
+    .history-status {
+      font-weight: bold;
+    }
+    .challenge-list {
+      margin: 16px 0;
+    }
+    .challenge-item {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px 0;
+      border-left: 4px solid var(--primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .challenge-item.active {
+      border-left-color: var(--warning);
+      background: #fff8e1;
+    }
+    .challenge-item.completed-success {
+      border-left-color: var(--success);
+      background: #f0f9f0;
+    }
+    .challenge-item.completed-failure {
+      border-left-color: var(--danger);
+      background: #ffebee;
+    }
+    .challenge-content {
+      flex: 1;
+      cursor: pointer;
+    }
+    .challenge-title {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .challenge-info {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .challenge-stats {
+      font-size: 13px;
+      color: #888;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    .status-badge.active {
+      background: #fff3e0;
+      color: #e65100;
+    }
+    .status-badge.completed {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    .status-badge.failed {
+      background: #ffebee;
+      color: #c62828;
+    }
+    .delete-btn {
+      background: transparent;
+      color: #999;
+      border: none;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 18px;
+      width: auto;
+      margin: 0 0 0 12px;
+      min-width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .delete-btn:hover {
+      background: #ffebee;
+      color: var(--danger);
+      transform: scale(1.1);
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .modal h3 {
+      margin-bottom: 16px;
+      color: var(--dark);
+    }
+    .modal p {
+      margin-bottom: 24px;
+      color: #666;
+      line-height: 1.5;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+    }
+    .modal-buttons button {
+      flex: 1;
+      margin: 0;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+      font-size: 16px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border: 2px dashed #ddd;
+      margin: 20px 0;
+    }
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      color: #888;
+      font-size: 14px;
+    }
+    .skip-indicator {
+      margin: 12px 0;
+      padding: 10px;
+      border-radius: 8px;
+      background: #fff3e0;
+      border-left: 4px solid var(--warning);
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .skip-indicator.limit-reached {
+      background: #ffebee;
+      border-left-color: var(--danger);
+    }
+    .skip-count {
+      font-weight: bold;
+      color: var(--dark);
+    }
+    .skip-limit {
+      color: #666;
+      font-size: 13px;
+    }
+    .time-warning {
+      margin: 8px 0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #fff3e0;
+      border-left: 4px solid var(--warning);
+      font-size: 13px;
+      color: #e65100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .time-warning.danger {
+      background: #ffebee;
+      border-left-color: var(--danger);
+      color: #c62828;
+    }
+    .help-content {
+      max-height: 70vh;
+      overflow-y: auto;
+      padding-right: 8px;
+      margin-bottom: 20px;
+    }
+    .help-content h3 {
+      color: var(--primary);
+      margin: 20px 0 10px 0;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 5px;
+    }
+    .help-content h3:first-child {
+      margin-top: 0;
+    }
+    .help-content ul {
+      margin: 10px 0 10px 20px;
+    }
+    .help-content li {
+      margin-bottom: 8px;
+    }
+    .help-content strong {
+      color: var(--primary);
+    }
+    .help-content .warning {
+      color: var(--warning);
+      font-weight: bold;
+    }
+    .help-content .danger {
+      color: var(--danger);
+      font-weight: bold;
+    }
+    .help-content .success {
+      color: var(--success);
+      font-weight: bold;
+    }
+    .feature-icon {
+      display: inline-block;
+      width: 24px;
+      text-align: center;
+      margin-right: 8px;
+    }
+    /* Стили для личного кабинета */
+    .profile-container {
+      text-align: center;
+      padding: 20px 0;
+    }
+    .avatar-container {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      margin: 0 auto 20px;
+    }
+    .avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--primary);
+      background: #f0f7ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      color: var(--primary);
+    }
+    .avatar-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #f0f7ff;
+      border: 4px solid var(--primary);
+      font-size: 60px;
+      color: var(--primary);
+    }
+    .avatar-btn {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+    .avatar-btn:hover {
+      background: #1a5ca3;
+      transform: scale(1.1);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .stat-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      border-left: 4px solid var(--primary);
+    }
+    .stat-card.success {
+      border-left-color: var(--success);
+      background: #f0f9f0;
+    }
+    .stat-card.failed {
+      border-left-color: var(--danger);
+      background: #ffebee;
+    }
+    .stat-number {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .stat-label {
+      color: #666;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .total-stat {
+      background: #f0f7ff;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+      border-left: 4px solid var(--warning);
+    }
+    .total-stat .stat-number {
+      font-size: 40px;
+      color: var(--warning);
+    }
+    .success-rate {
+      background: #e8f5e9;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+      border-left: 4px solid var(--success);
+    }
+    .success-rate .stat-number {
+      font-size: 36px;
+      color: var(--success);
+    }
+    .profile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    .profile-title {
+      font-size: 24px;
+      color: var(--primary);
+      font-weight: bold;
+    }
+    .profile-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .profile-actions button {
+      width: auto;
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+    .back-btn {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      margin: 8px 0;
+      transition: all 0.3s ease;
+    }
+    .back-btn:hover {
+      background: #f0f7ff;
+    }
+    .avatar-input {
+      display: none;
+    }
+    
+    /* Стили для экрана входа */
+    .auth-container {
+      max-width: 400px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    
+    .auth-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .auth-tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      color: #666;
+      transition: all 0.3s ease;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .auth-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    
+    .auth-form {
+      display: none;
+    }
+    
+    .auth-form.active {
+      display: block;
+    }
+    
+    .auth-error {
+      background: #ffebee;
+      color: #d32f2f;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border-left: 4px solid #d32f2f;
+      font-size: 14px;
+      display: none;
+    }
+    
+    .auth-error.show {
+      display: block;
+    }
+    
+    .auth-success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border-left: 4px solid #2e7d32;
+      font-size: 14px;
+      display: none;
+    }
+    
+    .auth-success.show {
+      display: block;
+    }
+    
+    /* Новые стили для информации о пользователе в личном кабинете */
+    .profile-user-info {
+      text-align: right;
+      margin-bottom: 20px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary);
+    }
+    
+    .profile-user-email {
+      font-weight: bold;
+      color: var(--primary);
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    
+    .profile-logout-btn {
+      background: var(--danger);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      width: auto;
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+    
+    .profile-logout-btn:hover {
+      background: #b71c1c;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(183, 28, 28, 0.3);
+    }
+    
+    /* Стили для отображения логина под аватаркой */
+    .user-login-display {
+      margin-top: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--primary);
+      text-align: center;
+      padding: 8px 16px;
+      background: #f0f7ff;
+      border-radius: 8px;
+      display: inline-block;
+      position: relative;
+    }
+    
+    /* Стили для кнопки изменения логина */
+    .edit-login-btn {
+      background: transparent;
+      color: var(--primary);
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-left: 8px;
+      transition: all 0.2s ease;
+    }
+    
+    .edit-login-btn:hover {
+      background: #f0f7ff;
+      transform: scale(1.1);
+    }
+    
+    /* Стили для экрана изменения логина */
+    .change-login-container {
+      text-align: left;
+      margin-top: 20px;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid var(--warning);
+    }
+    
+    .change-login-container h3 {
+      color: var(--primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .change-login-note {
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: #fff3e0;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #e65100;
+      border-left: 3px solid var(--warning);
+    }
+    
+    .change-login-warning {
+      margin-top: 12px;
+      padding: 12px;
+      background: #ffebee;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #d32f2f;
+      border-left: 3px solid var(--danger);
+      text-align: center;
+    }
+    
+    .time-remaining {
+      font-weight: bold;
+      color: var(--dark);
+      margin: 8px 0;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Экран входа/регистрации -->
+  <div id="screen-auth" class="auth-container">
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <div class="auth-tab active" data-tab="login">Вход</div>
+        <div class="auth-tab" data-tab="register">Регистрация</div>
+      </div>
+      
+      <div id="login-form" class="auth-form active">
+        <h2 style="text-align: center; margin-bottom: 24px; color: var(--primary);">Вход в HabitForge</h2>
+        
+        <div id="login-error" class="auth-error"></div>
+        
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" placeholder="Ваш email" required>
+        
+        <label for="login-password">Пароль</label>
+        <input type="password" id="login-password" placeholder="Ваш пароль" required>
+        
+        <button id="btn-login">Войти</button>
+        
+        <p style="text-align: center; margin-top: 16px; color: #666; font-size: 14px;">
+          Нет аккаунта? <a href="#" id="switch-to-register" style="color: var(--primary); font-weight: bold;">Зарегистрироваться</a>
+        </p>
+      </div>
+      
+      <div id="register-form" class="auth-form">
+        <h2 style="text-align: center; margin-bottom: 24px; color: var(--primary);">Регистрация</h2>
+        
+        <div id="register-error" class="auth-error"></div>
+        <div id="register-success" class="auth-success"></div>
+        
+        <label for="register-username">Логин</label>
+        <input type="text" id="register-username" placeholder="Придумайте логин" required>
+        
+        <label for="register-email">Email</label>
+        <input type="email" id="register-email" placeholder="Ваш email" required>
+        
+        <label for="register-password">Пароль (минимум 6 символов)</label>
+        <input type="password" id="register-password" placeholder="Придумайте пароль" required>
+        
+        <label for="register-confirm-password">Подтвердите пароль</label>
+        <input type="password" id="register-confirm-password" placeholder="Повторите пароль" required>
+        
+        <button id="btn-register">Зарегистрироваться</button>
+        
+        <p style="text-align: center; margin-top: 16px; color: #666; font-size: 14px;">
+          Уже есть аккаунт? <a href="#" id="switch-to-login" style="color: var(--primary); font-weight: bold;">Войти</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Основной контейнер (показывается после входа) -->
+  <div id="main-container" class="hidden">
+    <!-- Убраны кнопка выхода и информация о пользователе сверху -->
+
+    <!-- Модальное окно подтверждения удаления -->
+    <div id="delete-modal" class="modal-overlay hidden">
+      <div class="modal">
+        <h3>Подтверждение удаления</h3>
+        <p id="delete-modal-text">Уверены ли вы, что хотите прекратить и убрать данный челлендж?</p>
+        <div class="modal-buttons">
+          <button id="btn-confirm-delete" class="danger">🗑 Удалить</button>
+          <button id="btn-cancel-delete">Отмена</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модальное окно справки -->
+    <div id="help-modal" class="modal-overlay hidden">
+      <div class="modal">
+        <h3>📚 Справка по HabitForge</h3>
+        <div class="help-content">
+          <h3>🎯 Что такое HabitForge?</h3>
+          <p>HabitForge — это фитнес-трекер привычек с системой социальной ответственности. Вы ставите цели, делаете виртуальные ставки и тренируете силу воли.</p>
+          
+          <h3>🚀 Как начать?</h3>
+          <ul>
+            <li><span class="feature-icon">➕</span> <strong>Создайте челлендж</strong> — выберите упражнение, укажите параметры тренировки</li>
+            <li><span class="feature-icon">💰</span> <strong>Установите ставку</strong> — виртуальная сумма, которую вы "рискуете"</li>
+            <li><span class="feature-icon">⚙️</span> <strong>Выберите режим</strong> — куда уйдут деньги при срыве (благотворительность или общий котёл)</li>
+          </ul>
+          
+          <h3>📊 Экран активного челленджа</h3>
+          <ul>
+            <li><span class="feature-icon">📈</span> <strong>Прогресс</strong> — визуализация выполнения за 7 дней</li>
+            <li><span class="feature-icon">✅</span> <strong>Отметка выполнения</strong> — отмечайте тренировки ежедневно</li>
+            <li><span class="feature-icon">❌</span> <strong>Лимит пропусков</strong> — система автоматически рассчитывает допустимое количество пропусков</li>
+            <li><span class="feature-icon">⚠️</span> <span class="warning">Предупреждение</span> — при достижении лимита пропусков следующий пропуск = срыв</li>
+            <li><span class="feature-icon">📖</span> <strong>История</strong> — просмотр всех отметок выполнения</li>
+          </ul>
+          
+          <h3>📋 Список всех челленджей</h3>
+          <ul>
+            <li><span class="feature-icon">🔥</span> <strong>Фильтрация</strong> — просмотр по статусу: все, активные, выполненные, срывы</li>
+            <li><span class="feature-icon">📅</span> <strong>Фильтр по месяцам</strong> — для выполненных и срывов показываются только текущего месяца</li>
+            <li><span class="feature-icon">📄</span> <strong>Пагинация</strong> — удобная навигация при большом количестве челленджей</li>
+            <li><span class="feature-icon">🗑️</span> <strong>Удаление</strong> — кнопка удаления только для активных челленджей</li>
+          </ul>
+          
+          <h3>⏰ Система лимита времени на удаление</h3>
+          <ul>
+            <li><span class="feature-icon">🕐</span> <strong>Первые 12 часов</strong> — можно удалить челлендж без последствий</li>
+            <li><span class="feature-icon">⏰</span> <strong>Таймер</strong> — отображается оставшееся время</li>
+            <li><span class="feature-icon">💀</span> <strong>После 12 часов</strong> — удаление = срыв, ставка теряется</li>
+            <li><span class="feature-icon">⚠️</span> <span class="warning">Важно</span> — система предупредит вас перед удалением</li>
+          </ul>
+          
+          <h3>🎯 Правила завершения</h3>
+          <ul>
+            <li><span class="feature-icon">✅</span> <span class="success">Успех</span> — выполнить больше дней, чем пропустить + не превысить лимит пропусков</li>
+            <li><span class="feature-icon">💀</span> <span class="danger">Срыв</span> — если пропусков больше, чем выполненных дней ИЛИ превышен лимит пропусков</li>
+            <li><span class="feature-icon">💰</span> <strong>Ставка при срыве</strong> — уходит на выбранный вами вариант (благотворительность/котёл)</li>
+          </ul>
+          
+          <h3>⚙️ Технические особенности</h3>
+          <ul>
+            <li><span class="feature-icon">💾</span> <strong>Локальное хранение</strong> — все данные хранятся только в вашем браузере</li>
+            <li><span class="feature-icon">📱</span> <strong>Адаптивный дизайн</strong> — удобно на компьютере и телефоне</li>
+            <li><span class="feature-icon">🔄</span> <strong>Автосохранение</strong> — все изменения сохраняются автоматически</li>
+          </ul>
+          
+          <h3>🎮 Ключевые возможности</h3>
+          <ul>
+            <li><span class="feature-icon">🔢</span> <strong>Максимум 5 активных челленджей</strong> — чтобы не распыляться</li>
+            <li><span class="feature-icon">📊</span> <strong>Детальная статистика</strong> — прогресс, пропуски, успешность</li>
+            <li><span class="feature-icon">🎯</span> <strong>Мотивирующая система</strong> — ставки + ответственность</li>
+            <li><span class="feature-icon">🔄</span> <strong>Гибкие настройки</strong> — от 3 до 6 тренировок в неделю</li>
+          </ul>
+        </div>
+        <button id="btn-close-help">Закрыть справку</button>
+      </div>
+    </div>
+
+    <!-- Модальное окно изменения логина -->
+    <div id="change-login-modal" class="modal-overlay hidden">
+      <div class="modal">
+        <h3>✏️ Изменение логина</h3>
+        <div id="change-login-content">
+          <!-- Контент будет динамически меняться -->
+        </div>
+        <div class="modal-buttons">
+          <button id="btn-save-login" class="success">Сохранить</button>
+          <button id="btn-cancel-login">Отмена</button>
+        </div>
+      </div>
+    </div>
+
+    <header>
+      <h1>🔥 HabitForge</h1>
+      <p>Фитнес-трекер привычек с ответственностью</p>
+    </header>
+
+    <!-- Экран: Нет активного челленджа -->
+    <div id="screen-start" class="card">
+      <h2>Начните фитнес-челлендж!</h2>
+      <p>Выберите упражнение, задайте план — и придерживайтесь его!</p>
+      <button id="btn-new">➕ Новый челлендж</button>
+      <button id="btn-view-challenges">📋 Список челленджей</button>
+      <button id="btn-profile" class="warning">👤 Личный кабинет</button>
+      <button id="btn-help">📚 Справка о интерфейсе и его возможностях</button>
+    </div>
+
+    <!-- Экран: Личный кабинет -->
+    <div id="screen-profile" class="card hidden">
+      <div class="profile-header">
+        <div class="profile-title">👤 Личный кабинет</div>
+        <div class="profile-actions">
+          <button id="btn-back-from-profile" class="back-btn">← Назад</button>
+        </div>
+      </div>
+      
+      <!-- Информация о пользователе и кнопка выхода -->
+      <div class="profile-user-info">
+        <div class="profile-user-email" id="profile-user-email-display"></div>
+        <button id="btn-profile-logout" class="profile-logout-btn">Выйти</button>
+      </div>
+      
+      <div class="profile-container">
+        <!-- Аватар -->
+        <div class="avatar-container">
+          <div id="avatar-placeholder" class="avatar-placeholder">👤</div>
+          <img id="avatar-image" class="avatar hidden" src="" alt="Аватар">
+          <button id="btn-avatar" class="avatar-btn">📷</button>
+          <input type="file" id="avatar-input" class="avatar-input" accept="image/*">
+        </div>
+        
+        <!-- Отображение логина под аватаркой с кнопкой изменения -->
+        <div class="user-login-display" id="user-login-display"></div>
+        
+        <h3>Ваша статистика</h3>
+        
+        <!-- Общая статистика -->
+        <div class="total-stat">
+          <div class="stat-number" id="total-challenges">0</div>
+          <div class="stat-label">Всего челленджей</div>
+        </div>
+        
+        <!-- Сетка статистики -->
+        <div class="stats-grid">
+          <div class="stat-card success">
+            <div class="stat-number" id="completed-challenges">0</div>
+            <div class="stat-label">Выполнено</div>
+          </div>
+          
+          <div class="stat-card failed">
+            <div class="stat-number" id="failed-challenges">0</div>
+            <div class="stat-label">Срывов</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-number" id="active-challenges">0</div>
+            <div class="stat-label">В процессе</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-number" id="total-days">0</div>
+            <div class="stat-label">Всего дней</div>
+          </div>
+        </div>
+        
+        <!-- Процент успешности -->
+        <div class="success-rate">
+          <div class="stat-number" id="success-rate">0%</div>
+          <div class="stat-label">Общая успешность</div>
+        </div>
+        
+        <!-- Детальная статистика -->
+        <div style="text-align: left; margin-top: 24px;">
+          <h4>📊 Детальная статистика:</h4>
+          <p>✅ <strong>Выполнено:</strong> <span id="total-completed-days">0</span> дней</p>
+          <p>❌ <strong>Пропущено:</strong> <span id="total-skipped-days">0</span> дней</p>
+          <p>💰 <strong>Всего ставок:</strong> <span id="total-bets">0</span> ₽</p>
+          <p>🎯 <strong>Средняя ставка:</strong> <span id="average-bet">0</span> ₽</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Экран: Создание челленджа -->
+    <div id="screen-create" class="card hidden">
+      <h2>Создайте фитнес-цель</h2>
+      
+      <p id="challenge-limit-warning" style="color: #d32f2f; margin-bottom: 16px; display: none;">
+        ⚠️ Достигнут лимит в 5 активных челленджей. Завершите один из текущих или создайте новый после завершения.
+      </p>
+
+      <label for="exercise-select">Упражнение</label>
+      <select id="exercise-select">
+        <option value="Отжимания">Отжимания</option>
+        <option value="Подтягивания">Подтягивания</option>
+        <option value="Приседания">Приседания</option>
+        <option value="Планка">Планка</option>
+        <option value="Бег">Бег</option>
+        <option value="Ходьба">Ходьба</option>
+        <option value="Пресс">Пресс (скручивания)</option>
+      </select>
+
+      <label for="reps-input">Повторений в подходе (макс: 30)</label>
+      <input type="number" id="reps-input" placeholder="Например: 15" min="1" max="30" value="15">
+
+      <label for="sets-input">Подходов за тренировку (макс: 15)</label>
+      <input type="number" id="sets-input" placeholder="Например: 3" min="1" max="15" value="3">
+
+      <!-- ИЗМЕНЕНО: минимальное значение изменено с 1 на 3 -->
+      <label for="days-input">Тренировок в неделю (от 3 до 6)</label>
+      <input type="number" id="days-input" placeholder="Например: 3" min="3" max="6" value="3">
+      <p style="color: #666; font-size: 14px; margin-top: -4px; margin-bottom: 12px;">
+        <span id="skip-limit-info">Допустимо пропусков: 4</span>
+      </p>
+
+      <label for="bet-input">Ваша ставка (₽) (макс: 1500)</label>
+      <input type="number" id="bet-input" placeholder="Виртуальная ставка" min="0" max="1500" value="500">
+
+      <label for="mode-select">Что происходит при срыве?</label>
+      <select id="mode-select">
+        <option value="charity">На благотворительность</option>
+        <option value="pot">В общий котёл (розыгрыш)</option>
+      </select>
+
+      <button id="btn-create-confirm">✅ Начать челлендж</button>
+      <button id="btn-create-cancel">Отмена</button>
+    </div>
+
+    <!-- Экран: Активный челлендж -->
+    <div id="screen-active" class="card hidden">
+      <h2 id="active-habit-title"></h2>
+      <p>Ставка: <strong id="active-bet"></strong> ₽</p>
+      <p>Режим: <span id="active-mode"></span></p>
+      
+      <!-- Индикатор пропусков -->
+      <div id="skip-indicator" class="skip-indicator">
+        <div>
+          <span class="skip-count">Пропущено: <span id="skip-current">0</span></span>
+          <span class="skip-limit">из <span id="skip-max">4</span> допустимо</span>
+        </div>
+        <div id="skip-warning" style="color: #d32f2f; font-weight: bold; display: none;">
+          ⚠️ Лимит пропусков!
+        </div>
+      </div>
+      
+      <div>Дней выполнено: <span id="days-done">0</span> / <span id="days-total">7</span></div>
+      <div class="progress">
+        <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+      </div>
+
+      <h3>Отметка выполнения на сегодня</h3>
+      <div class="btn-group">
+        <button id="btn-mark-done" class="success">✅ Выполнил</button>
+        <button id="btn-mark-skipped" class="danger">❌ Пропустил</button>
+      </div>
+      
+      <div id="skip-limit-reached-warning" style="color: #d32f2f; padding: 10px; background: #ffebee; border-radius: 8px; margin: 12px 0; display: none;">
+        ⚠️ Вы достигли лимита пропусков! Следующий пропуск приведёт к срыву челленджа.
+      </div>
+
+      <h3>История выполнения</h3>
+      <div id="history-list" class="history-list">
+        <!-- История будет добавляться динамически -->
+      </div>
+
+      <button id="btn-view-all-challenges">📋 К списку челленджей</button>
+      <button id="btn-give-up" class="danger">💀 Сдаться (полный срыв)</button>
+    </div>
+
+    <!-- Экран: Список всех челленджей -->
+    <div id="screen-challenges" class="card hidden">
+      <h2>📋 Все челленджи</h2>
+      <p>Максимум 5 активных челленджей одновременно</p>
+      
+      <!-- Кнопки фильтрации -->
+      <div class="filter-buttons">
+        <div class="filter-btn filter-btn-all active" data-filter="all">
+          📋 Все челленджи
+        </div>
+        <div class="filter-btn filter-btn-active" data-filter="active">
+          🔥 В процессе
+        </div>
+        <div class="filter-btn filter-btn-completed" data-filter="completed">
+          ✅ Выполнено
+        </div>
+        <div class="filter-btn filter-btn-failed" data-filter="failed">
+          💀 Срыв
+        </div>
+      </div>
+      
+      <!-- Информация о текущем месяце (только для Выполнено и Срыв) -->
+      <div id="current-month-info" class="current-month-info hidden">
+        <!-- Текст будет добавляться динамически -->
+      </div>
+      
+      <div id="challenges-list" class="challenge-list">
+        <!-- Список челленджей будет добавляться динамически -->
+      </div>
+      
+      <!-- Пагинация -->
+      <div id="pagination" class="pagination hidden">
+        <!-- Кнопки страниц будут добавляться динамически -->
+      </div>
+      
+      <!-- Информация о странице -->
+      <div id="page-info" class="page-info hidden"></div>
+      
+      <button id="btn-add-new-challenge">➕ Создать новый челлендж</button>
+      <button id="btn-back-from-challenges">Назад</button>
+    </div>
+
+    <!-- Экран: Итог -->
+    <div id="screen-result" class="card hidden">
+      <h2 id="result-title"></h2>
+      <p id="result-text"></p>
+      
+      <h3>Итоговая статистика</h3>
+      <div id="result-stats"></div>
+      
+      <button id="btn-new-again">Начать новый челлендж</button>
+      <button id="btn-to-challenges">📋 К списку челленджей</button>
+    </div>
+
+    <footer>
+      Все данные хранятся только на этом устройстве.
+    </footer>
+  </div>
+
+  <script>
+    // ==================== СИСТЕМА АУТЕНТИФИКАЦИИ ====================
+    
+    // Хэширование пароля (упрощённое, для демонстрации)
+    function hashPassword(password) {
+      let hash = 0;
+      for (let i = 0; i < password.length; i++) {
+        const char = password.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return hash.toString(36);
+    }
+    
+    // Получение всех пользователей из localStorage
+    function getAllUsers() {
+      const users = localStorage.getItem('habitforge-users');
+      return users ? JSON.parse(users) : {};
+    }
+    
+    // Сохранение пользователей в localStorage
+    function saveAllUsers(users) {
+      localStorage.setItem('habitforge-users', JSON.stringify(users));
+    }
+    
+    // Регистрация нового пользователя
+    function registerUser(username, email, password) {
+      const users = getAllUsers();
+      
+      // Проверка, существует ли уже пользователь с таким email
+      if (users[email]) {
+        return { success: false, message: 'Пользователь с таким email уже существует' };
+      }
+      
+      // Проверка, существует ли уже пользователь с таким логином
+      const existingUserWithUsername = Object.values(users).find(user => user.username === username);
+      if (existingUserWithUsername) {
+        return { success: false, message: 'Пользователь с таким логином уже существует' };
+      }
+      
+      // Проверка длины пароля
+      if (password.length < 6) {
+        return { success: false, message: 'Пароль должен содержать минимум 6 символов' };
+      }
+      
+      // Проверка длины логина
+      if (username.length < 3) {
+        return { success: false, message: 'Логин должен содержать минимум 3 символа' };
+      }
+      
+      // Проверка, что логин содержит только буквы и цифры
+      if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        return { success: false, message: 'Логин может содержать только буквы, цифры и символ подчеркивания' };
+      }
+      
+      // Создание пользователя
+      users[email] = {
+        username: username,
+        email: email,
+        passwordHash: hashPassword(password),
+        createdAt: new Date().toISOString(),
+        lastLoginChange: null, // Дата последнего изменения логина
+        avatar: null,
+        challenges: []
+      };
+      
+      saveAllUsers(users);
+      return { success: true, message: 'Регистрация успешна!' };
+    }
+    
+    // Вход пользователя (по email)
+    function loginUser(email, password) {
+      const users = getAllUsers();
+      
+      // Проверка существования пользователя
+      if (!users[email]) {
+        return { success: false, message: 'Пользователь не найден' };
+      }
+      
+      // Проверка пароля
+      if (users[email].passwordHash !== hashPassword(password)) {
+        return { success: false, message: 'Неверный пароль' };
+      }
+      
+      // Установка текущего пользователя
+      localStorage.setItem('habitforge-current-user', email);
+      return { success: true, message: 'Вход выполнен успешно' };
+    }
+    
+    // Получение текущего пользователя
+    function getCurrentUser() {
+      return localStorage.getItem('habitforge-current-user');
+    }
+    
+    // Получение данных текущего пользователя
+    function getCurrentUserData() {
+      const email = getCurrentUser();
+      if (!email) return null;
+      
+      const users = getAllUsers();
+      return users[email] || null;
+    }
+    
+    // Сохранение данных текущего пользователя
+    function saveCurrentUserData(userData) {
+      const email = getCurrentUser();
+      if (!email) return;
+      
+      const users = getAllUsers();
+      users[email] = userData;
+      saveAllUsers(users);
+    }
+    
+    // Выход пользователя
+    function logoutUser() {
+      localStorage.removeItem('habitforge-current-user');
+    }
+    
+    // Проверка, можно ли изменить логин (раз в 2 недели)
+    function canChangeLogin() {
+      const userData = getCurrentUserData();
+      if (!userData || !userData.lastLoginChange) return true;
+      
+      const now = new Date();
+      const lastChange = new Date(userData.lastLoginChange);
+      const twoWeeksInMs = 14 * 24 * 60 * 60 * 1000; // 2 недели в миллисекундах
+      
+      return (now - lastChange) >= twoWeeksInMs;
+    }
+    
+    // Получение оставшегося времени до возможности изменения логина
+    function getTimeUntilLoginChange() {
+      const userData = getCurrentUserData();
+      if (!userData || !userData.lastLoginChange) return null;
+      
+      const now = new Date();
+      const lastChange = new Date(userData.lastLoginChange);
+      const twoWeeksInMs = 14 * 24 * 60 * 60 * 1000;
+      const timePassed = now - lastChange;
+      const timeRemaining = twoWeeksInMs - timePassed;
+      
+      if (timeRemaining <= 0) return null;
+      
+      const days = Math.floor(timeRemaining / (24 * 60 * 60 * 1000));
+      const hours = Math.floor((timeRemaining % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+      const minutes = Math.floor((timeRemaining % (60 * 60 * 1000)) / (60 * 1000));
+      
+      return { days, hours, minutes };
+    }
+    
+    // Форматирование времени для отображения
+    function formatTimeRemaining(time) {
+      if (!time) return null;
+      
+      const parts = [];
+      if (time.days > 0) {
+        const daysText = time.days === 1 ? 'день' : 
+                        (time.days >= 2 && time.days <= 4 ? 'дня' : 'дней');
+        parts.push(`${time.days} ${daysText}`);
+      }
+      if (time.hours > 0) {
+        const hoursText = time.hours === 1 ? 'час' : 
+                         (time.hours >= 2 && time.hours <= 4 ? 'часа' : 'часов');
+        parts.push(`${time.hours} ${hoursText}`);
+      }
+      if (time.minutes > 0) {
+        const minutesText = time.minutes === 1 ? 'минута' : 
+                           (time.minutes >= 2 && time.minutes <= 4 ? 'минуты' : 'минут');
+        parts.push(`${time.minutes} ${minutesText}`);
+      }
+      
+      return parts.join(' ');
+    }
+    
+    // Изменение логина пользователя
+    function changeUsername(newUsername) {
+      const userData = getCurrentUserData();
+      if (!userData) return { success: false, message: 'Пользователь не найден' };
+      
+      // Проверка длины логина
+      if (newUsername.length < 3) {
+        return { success: false, message: 'Логин должен содержать минимум 3 символа' };
+      }
+      
+      // Проверка, что логин содержит только буквы и цифры
+      if (!/^[a-zA-Z0-9_]+$/.test(newUsername)) {
+        return { success: false, message: 'Логин может содержать только буквы, цифры и символ подчеркивания' };
+      }
+      
+      // Проверка, существует ли уже пользователь с таким логином
+      const users = getAllUsers();
+      const existingUserWithUsername = Object.values(users).find(user => 
+        user.username === newUsername && user.email !== userData.email
+      );
+      
+      if (existingUserWithUsername) {
+        return { success: false, message: 'Пользователь с таким логином уже существует' };
+      }
+      
+      // Проверка, можно ли изменить логин
+      if (!canChangeLogin()) {
+        const timeRemaining = getTimeUntilLoginChange();
+        const formattedTime = formatTimeRemaining(timeRemaining);
+        return { 
+          success: false, 
+          message: `Изменение логина будет доступно через ${formattedTime}` 
+        };
+      }
+      
+      // Обновляем логин
+      userData.username = newUsername;
+      userData.lastLoginChange = new Date().toISOString();
+      
+      // Сохраняем изменения
+      saveCurrentUserData(userData);
+      
+      return { success: true, message: 'Логин успешно изменён' };
+    }
+    
+    // ==================== ОСНОВНАЯ ЛОГИКА ПРИЛОЖЕНИЯ ====================
+    
+    // Максимальное количество активных челленджей
+    const MAX_CHALLENGES = 5;
+    const CHALLENGES_PER_PAGE = 5;
+    const MAX_PAGES = 10;
+    const DELETE_TIME_LIMIT = 12 * 60 * 60 * 1000; // 12 часов в миллисекундах
+    
+    // Глобальные переменные приложения
+    let allChallenges = [];
+    let userAvatar = null;
+    let currentHabitIndex = -1;
+    let challengeToDeleteIndex = -1;
+    let currentFilter = 'all';
+    let currentPage = 1;
+    let totalPages = 1;
+    
+    // DOM элементы
+    const screens = {
+      auth: document.getElementById('screen-auth'),
+      main: document.getElementById('main-container'),
+      start: document.getElementById('screen-start'),
+      profile: document.getElementById('screen-profile'),
+      create: document.getElementById('screen-create'),
+      active: document.getElementById('screen-active'),
+      challenges: document.getElementById('screen-challenges'),
+      result: document.getElementById('screen-result'),
+    };
+    
+    // Модальные окна
+    const deleteModal = document.getElementById('delete-modal');
+    const deleteModalText = document.getElementById('delete-modal-text');
+    const helpModal = document.getElementById('help-modal');
+    const changeLoginModal = document.getElementById('change-login-modal');
+    const changeLoginContent = document.getElementById('change-login-content');
+    
+    // ==================== ФУНКЦИИ ПРИЛОЖЕНИЯ ====================
+    
+    // Функция для расчета максимального количества пропусков на основе тренировок в неделю
+    function calculateMaxSkips(daysPerWeek) {
+      const skipLimits = {
+        6: 1,  // 6 тренировок в неделю → 1 пропуск
+        5: 2,  // 5 тренировок в неделю → 2 пропуска
+        4: 3,  // 4 тренировки в неделю → 3 пропуска
+        3: 4,  // 3 тренировки в неделю → 4 пропуска
+        2: 5,  // 2 тренировки в неделю → 5 пропусков
+        1: 6   // 1 тренировка в неделю → 6 пропусков
+      };
+      return skipLimits[daysPerWeek] || 4;
+    }
+    
+    // Получить текущий месяц и год
+    function getCurrentMonthYear() {
+      const now = new Date();
+      return {
+        month: now.getMonth(),
+        year: now.getFullYear()
+      };
+    }
+    
+    // Получить русское название месяца
+    function getMonthName(monthIndex) {
+      const months = [
+        'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+        'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+      ];
+      return months[monthIndex];
+    }
+    
+    // Проверить, прошло ли более 12 часов с момента создания
+    function isOver12Hours(challenge) {
+      const now = new Date();
+      const createdAt = new Date(challenge.createdAt);
+      const timeDiff = now - createdAt;
+      return timeDiff > DELETE_TIME_LIMIT;
+    }
+    
+    // Получить оставшееся время до истечения 12 часов
+    function getRemainingTime(challenge) {
+      const now = new Date();
+      const createdAt = new Date(challenge.createdAt);
+      const timeDiff = now - createdAt;
+      const remainingTime = DELETE_TIME_LIMIT - timeDiff;
+      
+      if (remainingTime <= 0) return 0;
+      
+      const hours = Math.floor(remainingTime / (60 * 60 * 1000));
+      const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
+      
+      return { hours, minutes };
+    }
+    
+    // Форматировать время для отображения
+    function formatTime(remainingTime) {
+      if (remainingTime === 0) return 'истекло';
+      
+      const hoursText = remainingTime.hours === 1 ? 'час' : 
+                       (remainingTime.hours >= 2 && remainingTime.hours <= 4 ? 'часа' : 'часов');
+      const minutesText = remainingTime.minutes === 1 ? 'минута' : 
+                         (remainingTime.minutes >= 2 && remainingTime.minutes <= 4 ? 'минуты' : 'минут');
+      
+      return `${remainingTime.hours} ${hoursText} ${remainingTime.minutes} ${minutesText}`;
+    }
+    
+    // Обновить информацию о лимите пропусков при создании челленджа
+    function updateSkipLimitInfo() {
+      const daysInput = document.getElementById('days-input');
+      const skipLimitInfo = document.getElementById('skip-limit-info');
+      const daysPerWeek = parseInt(daysInput.value) || 3;
+      const maxSkips = calculateMaxSkips(daysPerWeek);
+      skipLimitInfo.textContent = `Допустимо пропусков: ${maxSkips}`;
+    }
+    
+    // Инициализация фильтров
+    function initFilters() {
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          // Убираем активный класс у всех кнопок
+          filterButtons.forEach(b => b.classList.remove('active'));
+          // Добавляем активный класс нажатой кнопке
+          btn.classList.add('active');
+          // Устанавливаем текущий фильтр
+          currentFilter = btn.dataset.filter;
+          // Сбрасываем на первую страницу
+          currentPage = 1;
+          
+          // Показываем/скрываем информацию о текущем месяце
+          const monthInfo = document.getElementById('current-month-info');
+          if (currentFilter === 'completed' || currentFilter === 'failed') {
+            const current = getCurrentMonthYear();
+            const monthName = getMonthName(current.month);
+            monthInfo.innerHTML = `📅 Показаны челленджи за ${monthName} ${current.year} года`;
+            monthInfo.classList.remove('hidden');
+          } else {
+            monthInfo.classList.add('hidden');
+          }
+          
+          // Обновляем список челленджей
+          renderChallengesList();
+        });
+      });
+    }
+    
+    // Получить дату завершения челленджа (последняя отметка в истории)
+    function getCompletionDate(challenge) {
+      if (challenge.history && challenge.history.length > 0) {
+        // Сортируем историю по дате (последние сначала)
+        const sortedHistory = [...challenge.history].sort((a, b) => 
+          new Date(b.timestamp) - new Date(a.timestamp)
+        );
+        return new Date(sortedHistory[0].timestamp);
+      }
+      // Если истории нет, используем дату создания
+      return new Date(challenge.createdAt);
+    }
+    
+    // Проверить, относится ли челлендж к текущему месяцу
+    function isChallengeInCurrentMonth(challenge) {
+      const completionDate = getCompletionDate(challenge);
+      const current = getCurrentMonthYear();
+      return completionDate.getMonth() === current.month && 
+             completionDate.getFullYear() === current.year;
+    }
+    
+    // Фильтрация челленджей по статусу
+    function filterChallenges(challenges) {
+      let filtered = challenges;
+      
+      // Фильтрация по статусу
+      switch(currentFilter) {
+        case 'all':
+          // Все челленджи
+          break;
+        case 'active':
+          // Только активные (всегда все активные)
+          filtered = filtered.filter(challenge => challenge.isActive);
+          break;
+        case 'completed':
+          // Только выполненные за текущий месяц
+          filtered = filtered.filter(challenge => {
+            if (!challenge.isActive) {
+              const totalDays = challenge.totalCompleted + challenge.totalSkipped;
+              const successRate = totalDays > 0 ? 
+                Math.round((challenge.totalCompleted / totalDays) * 100) : 0;
+              if (successRate === 100 && challenge.daysSkipped <= challenge.maxSkips && !challenge.deletedAsFailure) {
+                return isChallengeInCurrentMonth(challenge);
+              }
+            }
+            return false;
+          });
+          break;
+        case 'failed':
+          // Только срывы за текущий месяц
+          filtered = filtered.filter(challenge => {
+            if (!challenge.isActive) {
+              const totalDays = challenge.totalCompleted + challenge.totalSkipped;
+              const successRate = totalDays > 0 ? 
+                Math.round((challenge.totalCompleted / totalDays) * 100) : 0;
+              if (successRate < 100 || challenge.daysSkipped > challenge.maxSkips || challenge.deletedAsFailure) {
+                return isChallengeInCurrentMonth(challenge);
+              }
+            }
+            return false;
+          });
+          break;
+      }
+      
+      return filtered;
+    }
+    
+    // Получить челленджи для текущей страницы
+    function getChallengesForCurrentPage(challenges) {
+      // Вычисляем индексы для текущей страницы
+      const startIndex = (currentPage - 1) * CHALLENGES_PER_PAGE;
+      const endIndex = startIndex + CHALLENGES_PER_PAGE;
+      
+      // Возвращаем срез массива для текущей страницы
+      return challenges.slice(startIndex, endIndex);
+    }
+    
+    // Рассчитать общее количество страниц
+    function calculateTotalPages(challenges) {
+      return Math.max(1, Math.ceil(challenges.length / CHALLENGES_PER_PAGE));
+    }
+    
+    // Создать пагинацию
+    function createPagination() {
+      const paginationContainer = document.getElementById('pagination');
+      const pageInfoContainer = document.getElementById('page-info');
+      
+      // Очищаем контейнеры
+      paginationContainer.innerHTML = '';
+      pageInfoContainer.innerHTML = '';
+      
+      // Если всего 1 страница или нет челленджей, скрываем пагинацию
+      if (totalPages <= 1) {
+        paginationContainer.classList.add('hidden');
+        pageInfoContainer.classList.add('hidden');
+        return;
+      }
+      
+      // Показываем пагинацию
+      paginationContainer.classList.remove('hidden');
+      pageInfoContainer.classList.remove('hidden');
+      
+      // Кнопка "Назад"
+      const prevButton = document.createElement('button');
+      prevButton.className = `page-btn ${currentPage === 1 ? 'disabled' : ''}`;
+      prevButton.innerHTML = '‹';
+      prevButton.onclick = () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderChallengesList();
+        }
+      };
+      paginationContainer.appendChild(prevButton);
+      
+      // Рассчитываем диапазон страниц для отображения
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, startPage + 4);
+      
+      // Корректируем startPage, если endPage близко к концу
+      if (endPage - startPage < 4 && startPage > 1) {
+        startPage = Math.max(1, endPage - 4);
+      }
+      
+      // Создаем кнопки для страниц
+      for (let i = startPage; i <= endPage; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+        pageButton.textContent = i;
+        pageButton.onclick = () => {
+          if (i !== currentPage) {
+            currentPage = i;
+            renderChallengesList();
+          }
+        };
+        paginationContainer.appendChild(pageButton);
+      }
+      
+      // Кнопка "Вперед"
+      const nextButton = document.createElement('button');
+      nextButton.className = `page-btn ${currentPage === totalPages ? 'disabled' : ''}`;
+      nextButton.innerHTML = '›';
+      nextButton.onclick = () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          renderChallengesList();
+        }
+      };
+      paginationContainer.appendChild(nextButton);
+      
+      // Информация о странице
+      pageInfoContainer.textContent = `Страница ${currentPage} из ${totalPages}`;
+    }
+    
+    // Обновить отображение аватара
+    function updateAvatarDisplay() {
+      const avatarImage = document.getElementById('avatar-image');
+      const avatarPlaceholder = document.getElementById('avatar-placeholder');
+      
+      if (userAvatar) {
+        avatarImage.src = userAvatar;
+        avatarImage.classList.remove('hidden');
+        avatarPlaceholder.classList.add('hidden');
+      } else {
+        avatarImage.classList.add('hidden');
+        avatarPlaceholder.classList.remove('hidden');
+      }
+    }
+    
+    // Рассчитать статистику для личного кабинета
+    function calculateProfileStats() {
+      const stats = {
+        total: allChallenges.length,
+        completed: 0,
+        failed: 0,
+        active: 0,
+        totalDays: 0,
+        totalCompletedDays: 0,
+        totalSkippedDays: 0,
+        totalBets: 0
+      };
+      
+      allChallenges.forEach(challenge => {
+        if (challenge.isActive) {
+          stats.active++;
+        } else {
+          const totalDays = challenge.totalCompleted + challenge.totalSkipped;
+          const successRate = totalDays > 0 ? 
+            Math.round((challenge.totalCompleted / totalDays) * 100) : 0;
+          
+          if (successRate === 100 && challenge.daysSkipped <= challenge.maxSkips && !challenge.deletedAsFailure) {
+            stats.completed++;
+          } else {
+            stats.failed++;
+          }
+        }
+        
+        stats.totalDays += challenge.totalDays || 0;
+        stats.totalCompletedDays += challenge.totalCompleted || 0;
+        stats.totalSkippedDays += challenge.totalSkipped || 0;
+        stats.totalBets += challenge.bet || 0;
+      });
+      
+      return stats;
+    }
+    
+    // Обновить отображение email пользователя в личном кабинете
+    function updateProfileUserEmailDisplay() {
+      const userData = getCurrentUserData();
+      const emailDisplay = document.getElementById('profile-user-email-display');
+      if (userData && emailDisplay) {
+        emailDisplay.textContent = userData.email;
+      }
+    }
+    
+    // Обновить отображение логина пользователя в личном кабинете с кнопкой изменения
+    function updateUserLoginDisplay() {
+      const userData = getCurrentUserData();
+      const loginDisplay = document.getElementById('user-login-display');
+      if (userData && loginDisplay) {
+        loginDisplay.innerHTML = `
+          @${userData.username}
+          <button class="edit-login-btn" id="btn-edit-login">✏️</button>
+        `;
+        
+        // Добавляем обработчик для кнопки изменения логина
+        const editBtn = document.getElementById('btn-edit-login');
+        if (editBtn) {
+          editBtn.onclick = showChangeLoginModal;
+        }
+      }
+    }
+    
+    // Показать модальное окно изменения логина
+    function showChangeLoginModal() {
+      // Проверяем, можно ли изменить логин
+      if (canChangeLogin()) {
+        // Можно изменить - показываем форму
+        changeLoginContent.innerHTML = `
+          <p>Введите новый логин:</p>
+          <input type="text" id="new-username-input" placeholder="Новый логин" style="margin: 12px 0;">
+          <div class="change-login-note">
+            ⚠️ Примечание: Логин можно изменить раз в 2 недели
+          </div>
+        `;
+      } else {
+        // Нельзя изменить - показываем сообщение
+        const timeRemaining = getTimeUntilLoginChange();
+        const formattedTime = formatTimeRemaining(timeRemaining);
+        
+        changeLoginContent.innerHTML = `
+          <div class="change-login-warning">
+            ⚠️ Изменение логина будет доступно через:
+            <div class="time-remaining">${formattedTime}</div>
+            <p style="margin-top: 8px; font-size: 13px;">
+              Вы можете изменить логин только раз в 2 недели
+            </p>
+          </div>
+        `;
+        
+        // Делаем кнопку сохранения неактивной
+        document.getElementById('btn-save-login').disabled = true;
+      }
+      
+      changeLoginModal.classList.remove('hidden');
+    }
+    
+    // Скрыть модальное окно изменения логина
+    function hideChangeLoginModal() {
+      changeLoginModal.classList.add('hidden');
+      // Восстанавливаем кнопку сохранения
+      document.getElementById('btn-save-login').disabled = false;
+    }
+    
+    // Обработка изменения логина
+    function handleLoginChange() {
+      if (!canChangeLogin()) {
+        hideChangeLoginModal();
+        return;
+      }
+      
+      const newUsernameInput = document.getElementById('new-username-input');
+      if (!newUsernameInput) {
+        hideChangeLoginModal();
+        return;
+      }
+      
+      const newUsername = newUsernameInput.value.trim();
+      
+      if (!newUsername) {
+        alert('Введите новый логин');
+        return;
+      }
+      
+      const result = changeUsername(newUsername);
+      
+      if (result.success) {
+        alert(result.message);
+        hideChangeLoginModal();
+        // Обновляем отображение логина
+        updateUserLoginDisplay();
+      } else {
+        alert(result.message);
+      }
+    }
+    
+    // Отобразить личный кабинет
+    function renderProfile() {
+      const stats = calculateProfileStats();
+      
+      // Обновляем email пользователя
+      updateProfileUserEmailDisplay();
+      
+      // Обновляем логин пользователя
+      updateUserLoginDisplay();
+      
+      // Обновляем аватар
+      updateAvatarDisplay();
+      
+      // Обновляем статистику
+      document.getElementById('total-challenges').textContent = stats.total;
+      document.getElementById('completed-challenges').textContent = stats.completed;
+      document.getElementById('failed-challenges').textContent = stats.failed;
+      document.getElementById('active-challenges').textContent = stats.active;
+      document.getElementById('total-days').textContent = stats.totalDays;
+      document.getElementById('total-completed-days').textContent = stats.totalCompletedDays;
+      document.getElementById('total-skipped-days').textContent = stats.totalSkippedDays;
+      document.getElementById('total-bets').textContent = stats.totalBets;
+      
+      // Рассчитываем среднюю ставку
+      const averageBet = stats.total > 0 ? Math.round(stats.totalBets / stats.total) : 0;
+      document.getElementById('average-bet').textContent = averageBet;
+      
+      // Рассчитываем процент успешности
+      const successRate = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+      document.getElementById('success-rate').textContent = `${successRate}%`;
+    }
+    
+    // Отображение истории
+    function renderHistory() {
+      if (currentHabitIndex === -1 || !allChallenges[currentHabitIndex]) return;
+      
+      const currentHabit = allChallenges[currentHabitIndex];
+      const historyList = document.getElementById('history-list');
+      if (!currentHabit.history || currentHabit.history.length === 0) {
+        historyList.innerHTML = '<p>История пока пуста</p>';
+        return;
+      }
+      
+      let html = '';
+      currentHabit.history.forEach(entry => {
+        let statusText = '';
+        let statusClass = '';
+        
+        if (entry.status === 'completed') {
+          statusText = '✅ Выполнено';
+          statusClass = 'status-success';
+        } else if (entry.status === 'skipped') {
+          statusText = '❌ Пропущено';
+          statusClass = 'status-skipped';
+        } else if (entry.status === 'gave-up') {
+          statusText = '💀 Сдался';
+          statusClass = 'status-skipped';
+        } else if (entry.status === 'deleted-failure') {
+          statusText = '🗑️ Удалён (срыв)';
+          statusClass = 'status-skipped';
+        }
+        
+        const date = new Date(entry.date);
+        const formattedDate = date.toLocaleDateString('ru-RU', {
+          day: '2-digit',
+          month: '2-digit',
+          weekday: 'short'
+        });
+        
+        html += `
+          <div class="history-item">
+            <div class="history-date">${formattedDate}</div>
+            <div class="history-status ${statusClass.replace('status-', '')}">${statusText}</div>
+          </div>
+        `;
+      });
+      
+      historyList.innerHTML = html;
+    }
+    
+    // Отображение активного челленджа с индикатором пропусков
+    function renderActiveHabit() {
+      if (currentHabitIndex === -1 || !allChallenges[currentHabitIndex]) return;
+      
+      const currentHabit = allChallenges[currentHabitIndex];
+      
+      document.getElementById('active-habit-title').textContent = currentHabit.title;
+      document.getElementById('active-bet').textContent = currentHabit.bet;
+      document.getElementById('active-mode').textContent =
+        currentHabit.mode === 'charity' ? 'Благотворительность' : 'Общий котёл';
+      
+      const totalMarked = currentHabit.daysDone + currentHabit.daysSkipped;
+      const total = currentHabit.totalDays;
+      
+      document.getElementById('days-done').textContent = currentHabit.daysDone;
+      document.getElementById('days-total').textContent = total;
+      document.getElementById('progress-bar').style.width = (totalMarked / total * 100) + '%';
+      
+      // Обновляем индикатор пропусков
+      const skipIndicator = document.getElementById('skip-indicator');
+      const skipCurrent = document.getElementById('skip-current');
+      const skipMax = document.getElementById('skip-max');
+      const skipWarning = document.getElementById('skip-warning');
+      const skipLimitWarning = document.getElementById('skip-limit-reached-warning');
+      
+      skipCurrent.textContent = currentHabit.daysSkipped;
+      skipMax.textContent = currentHabit.maxSkips;
+      
+      // Проверяем, достигнут ли лимит пропусков
+      if (currentHabit.daysSkipped >= currentHabit.maxSkips) {
+        skipIndicator.classList.add('limit-reached');
+        skipWarning.style.display = 'block';
+        skipLimitWarning.style.display = 'block';
+      } else {
+        skipIndicator.classList.remove('limit-reached');
+        skipWarning.style.display = 'none';
+        skipLimitWarning.style.display = 'none';
+      }
+      
+      // Обновляем историю
+      renderHistory();
+    }
+    
+    // Показать модальное окно удаления с предупреждением о времени
+    window.showDeleteModal = function(index) {
+      challengeToDeleteIndex = index;
+      const challenge = allChallenges[index];
+      
+      // Проверяем, прошло ли 12 часов
+      if (isOver12Hours(challenge)) {
+        // Прошло более 12 часов - удаление будет считаться срывом
+        deleteModalText.innerHTML = `
+          <strong>⚠️ Внимание!</strong><br>
+          С момента создания челленджа прошло более 12 часов.<br>
+          Удаление челленджа будет считаться срывом.<br>
+          Ставка в размере <strong>${challenge.bet} ₽</strong> будет ${challenge.mode === 'charity' ? 'отправлена на благотворительность' : 'переведена в общий котёл'}.
+        `;
+      } else {
+        // Менее 12 часов - обычное удаление
+        const remainingTime = getRemainingTime(challenge);
+        deleteModalText.innerHTML = `
+          Уверены ли вы, что хотите прекратить и убрать данный челлендж?<br>
+          <div class="time-warning">
+            ⏰ У вас осталось: <strong>${formatTime(remainingTime)}</strong> до того, как удаление будет считаться срывом.
+          </div>
+        `;
+      }
+      
+      deleteModal.classList.remove('hidden');
+    };
+    
+    // Скрыть модальное окно удаления
+    function hideDeleteModal() {
+      deleteModal.classList.add('hidden');
+      challengeToDeleteIndex = -1;
+    }
+    
+    // Удалить челлендж с учетом времени
+    function deleteChallenge(index) {
+      if (index >= 0 && index < allChallenges.length) {
+        const challenge = allChallenges[index];
+        
+        // Проверяем, прошло ли 12 часов
+        if (isOver12Hours(challenge)) {
+          // Прошло более 12 часов - отмечаем как срыв
+          challenge.isActive = false;
+          challenge.deletedAsFailure = true;
+          
+          // Добавляем запись в историю о срыве из-за удаления
+          challenge.history.unshift({
+            date: new Date().toISOString().split('T')[0],
+            status: 'deleted-failure',
+            timestamp: new Date().toISOString()
+          });
+          
+          // Сохраняем изменения
+          saveUserChallenges();
+          
+          // Если удаляем текущий активный челлендж, показываем результат срыва
+          if (currentHabitIndex === index) {
+            showResult(false);
+          }
+        } else {
+          // Менее 12 часов - просто удаляем
+          // Если удаляем текущий активный челлендж, сбрасываем текущий индекс
+          if (currentHabitIndex === index) {
+            currentHabitIndex = -1;
+          } else if (currentHabitIndex > index) {
+            // Обновляем текущий индекс, если он изменился из-за удаления
+            currentHabitIndex--;
+          }
+          
+          // Удаляем челлендж из массива
+          allChallenges.splice(index, 1);
+          
+          // Сохраняем изменения
+          saveUserChallenges();
+          
+          // Если мы на экране активного челленджа, и удалили его, переходим на список челленджей
+          if (currentHabitIndex === -1 && !screens.active.classList.contains('hidden')) {
+            renderChallengesList();
+            showScreen('challenges');
+          }
+        }
+      }
+    }
+    
+    // Отображение списка всех челленджей
+    function renderChallengesList() {
+      const challengesList = document.getElementById('challenges-list');
+      
+      // Фильтруем челленджи
+      const filteredChallenges = filterChallenges(allChallenges);
+      
+      // Рассчитываем общее количество страниц
+      totalPages = calculateTotalPages(filteredChallenges);
+      
+      // Корректируем текущую страницу, если она превышает общее количество страниц
+      if (currentPage > totalPages) {
+        currentPage = totalPages;
+      }
+      
+      // Получаем челленджи для текущей страницы
+      const paginatedChallenges = getChallengesForCurrentPage(filteredChallenges);
+      
+      if (paginatedChallenges.length === 0) {
+        let emptyMessage = 'Пусто';
+        let emptyIcon = '';
+        
+        switch(currentFilter) {
+          case 'all':
+            emptyIcon = '📋';
+            break;
+          case 'active':
+            emptyIcon = '🔥';
+            break;
+          case 'completed':
+            emptyIcon = '✅';
+            break;
+          case 'failed':
+            emptyIcon = '💀';
+            break;
+        }
+        
+        challengesList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">${emptyIcon}</div>
+            <p>${emptyMessage}</p>
+          </div>
+        `;
+        
+        // Скрываем пагинацию, если нет челленджей
+        document.getElementById('pagination').classList.add('hidden');
+        document.getElementById('page-info').classList.add('hidden');
+        return;
+      }
+      
+      // Сортируем: активные сначала, затем завершённые, по дате создания (новые сначала)
+      const sortedChallenges = [...paginatedChallenges].sort((a, b) => {
+        // Сначала активные, затем неактивные
+        if (a.isActive && !b.isActive) return -1;
+        if (!a.isActive && b.isActive) return 1;
+        // Затем по дате создания (новые сначала)
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+      
+      let html = '';
+      const activeCount = allChallenges.filter(c => c.isActive).length;
+      const totalFiltered = filteredChallenges.length;
+      
+      html += `<p style="margin-bottom: 16px;"><strong>Показано: ${paginatedChallenges.length} из ${totalFiltered}</strong></p>`;
+      html += `<p style="margin-bottom: 16px; color: #666; font-size: 14px;">Активных: ${activeCount} из ${MAX_CHALLENGES}</p>`;
+      
+      sortedChallenges.forEach((challenge, index) => {
+        const totalMarked = challenge.daysDone + challenge.daysSkipped;
+        const progressPercent = Math.round((totalMarked / challenge.totalDays) * 100);
+        
+        // Определяем успешность и статус
+        let status = '';
+        let statusText = '';
+        let statusClass = '';
+        let borderClass = '';
+        let timeWarning = '';
+        
+        if (challenge.isActive) {
+          // Активный челлендж
+          status = 'active';
+          statusText = 'В процессе';
+          statusClass = 'active';
+          borderClass = 'active'; // Оранжевый бордер
+          
+          // Проверяем время для активных челленджей
+          if (isOver12Hours(challenge)) {
+            timeWarning = `<div class="time-warning danger">⚠️ Удаление будет считаться срывом!</div>`;
+          } else {
+            const remainingTime = getRemainingTime(challenge);
+            timeWarning = `<div class="time-warning">⏰ До срыва при удалении: ${formatTime(remainingTime)}</div>`;
+          }
+        } else {
+          // Завершённый челлендж
+          const totalDays = challenge.totalCompleted + challenge.totalSkipped;
+          const successRate = totalDays > 0 ? 
+            Math.round((challenge.totalCompleted / totalDays) * 100) : 0;
+          
+          if (successRate === 100 && challenge.daysSkipped <= challenge.maxSkips && !challenge.deletedAsFailure) {
+            // 100% успешность И не превышен лимит пропусков И не удалён как срыв = Выполнено
+            status = 'completed';
+            statusText = 'Выполнено';
+            statusClass = 'completed';
+            borderClass = 'completed-success'; // Зелёный бордер
+          } else {
+            // Менее 100% успешности или превышен лимит пропусков или удалён как срыв = Срыв
+            status = 'failed';
+            statusText = 'Срыв';
+            statusClass = 'failed';
+            borderClass = 'completed-failure'; // Красный бордер
+            
+            if (challenge.deletedAsFailure) {
+              statusText = 'Срыв (удалён)';
+            }
+          }
+        }
+        
+        const startDate = new Date(challenge.startDate);
+        const formattedDate = startDate.toLocaleDateString('ru-RU', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+        
+        // Дата завершения
+        const completionDate = getCompletionDate(challenge);
+        const completionFormatted = completionDate.toLocaleDateString('ru-RU', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+        
+        // Находим оригинальный индекс в массиве allChallenges
+        const originalIndex = allChallenges.findIndex(c => c.id === challenge.id);
+        
+        // Определяем, нужно ли показывать кнопку удаления
+        // Показываем кнопку удаления ТОЛЬКО для активных челленджей
+        const showDeleteButton = challenge.isActive;
+        
+        html += `
+          <div class="challenge-item ${borderClass}">
+            <div class="challenge-content" onclick="selectChallenge(${originalIndex})">
+              <div class="challenge-title">
+                <span class="status-badge ${statusClass}">${statusText}</span>
+                ${challenge.exercise}
+              </div>
+              <div class="challenge-info">
+                Ставка: ${challenge.bet} ₽ • ${formattedDate}
+                ${!challenge.isActive ? `• ${completionFormatted}` : ''}
+              </div>
+              ${timeWarning}
+              <div class="challenge-stats">
+                ${challenge.isActive ? 
+                  `📊 Прогресс: ${progressPercent}% • Пропущено: ${challenge.daysSkipped}/${challenge.maxSkips}` :
+                  status === 'completed' ? 
+                    `✅ Выполнено • Пропущено: ${challenge.daysSkipped}/${challenge.maxSkips}` :
+                    `💀 ${challenge.deletedAsFailure ? 'Удалён как срыв' : 'Срыв'} • Пропущено: ${challenge.daysSkipped}/${challenge.maxSkips}`
+                }
+              </div>
+            </div>
+            ${showDeleteButton ? `<button class="delete-btn" onclick="showDeleteModal(${originalIndex})" type="button">🗑</button>` : ''}
+          </div>
+        `;
+      });
+      
+      challengesList.innerHTML = html;
+      
+      // Создаем пагинацию
+      createPagination();
+    }
+    
+    // Выбор челленджа из списка
+    window.selectChallenge = function(index) {
+      if (index >= 0 && index < allChallenges.length) {
+        currentHabitIndex = index;
+        const challenge = allChallenges[index];
+        
+        if (challenge.isActive) {
+          renderActiveHabit();
+          showScreen('active');
+        } else {
+          // Для завершённых челленджей показываем результат
+          showResultForCompleted(index);
+        }
+      }
+    };
+    
+    // Функция отметки дня
+    function markDay(status) {
+      if (currentHabitIndex === -1 || !allChallenges[currentHabitIndex]) return;
+      
+      const currentHabit = allChallenges[currentHabitIndex];
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Проверяем, не отмечали ли сегодня
+      if (currentHabit.history.some(entry => entry.date === today)) {
+        alert('Вы уже отметили сегодняшний день!');
+        return;
+      }
+      
+      // Проверяем лимит пропусков для пропусков
+      if (status === 'skipped') {
+        if (currentHabit.daysSkipped >= currentHabit.maxSkips) {
+          // Достигнут лимит пропусков - срыв челленджа
+          if (confirm(`Вы достигли лимита пропусков (${currentHabit.maxSkips})! Пропуск сегодняшнего дня приведёт к срыву челленджа. Продолжить?`)) {
+            // Добавляем запись в историю как пропуск
+            currentHabit.history.unshift({
+              date: today,
+              status: 'skipped',
+              timestamp: new Date().toISOString()
+            });
+            currentHabit.daysSkipped++;
+            currentHabit.totalSkipped++;
+            currentHabit.lastMarked = today;
+            
+            // Челлендж провален из-за превышения лимита пропусков
+            showResult(false);
+            currentHabit.isActive = false;
+            currentHabit.deletedAsFailure = false; // Это не удаление, а обычный срыв
+            saveUserChallenges();
+            renderActiveHabit();
+            renderHistory();
+          }
+          return;
+        }
+      }
+      
+      // Добавляем запись в историю
+      currentHabit.history.unshift({
+        date: today,
+        status: status,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Обновляем счетчики
+      if (status === 'completed') {
+        currentHabit.daysDone++;
+        currentHabit.totalCompleted++;
+      } else if (status === 'skipped') {
+        currentHabit.daysSkipped++;
+        currentHabit.totalSkipped++;
+      }
+      
+      currentHabit.lastMarked = today;
+      
+      // Проверяем завершение челленджа
+      const totalMarked = currentHabit.daysDone + currentHabit.daysSkipped;
+      
+      if (totalMarked >= currentHabit.totalDays) {
+        // Для успешного завершения нужно выполнить больше дней, чем пропустить
+        // И количество пропусков не должно превышать лимит
+        if (currentHabit.daysDone > currentHabit.daysSkipped && currentHabit.daysSkipped <= currentHabit.maxSkips) {
+          showResult(true);
+        } else {
+          showResult(false);
+        }
+        currentHabit.isActive = false;
+      }
+      
+      saveUserChallenges();
+      renderActiveHabit();
+      renderHistory();
+    }
+    
+    // Показ результата
+    function showResult(success) {
+      if (currentHabitIndex === -1 || !allChallenges[currentHabitIndex]) return;
+      
+      const currentHabit = allChallenges[currentHabitIndex];
+      const title = success ? '🎉 Успех!' : '💀 Срыв';
+      let text = success
+        ? `Вы завершили челлендж: «${currentHabit.title}»!`
+        : `Челлендж не завершён. ${currentHabit.bet} ₽ (виртуально) `;
+      
+      if (!success) {
+        text += currentHabit.mode === 'charity'
+          ? 'отправлены на благотворительность. ❤️'
+          : 'ушли в общий котёл. 🎲';
+          
+        // Если срыв из-за превышения лимита пропусков
+        if (currentHabit.daysSkipped > currentHabit.maxSkips) {
+          text += `\n\nПричина срыва: превышен лимит пропусков (допустимо: ${currentHabit.maxSkips}, пропущено: ${currentHabit.daysSkipped}).`;
+        }
+      }
+      
+      document.getElementById('result-title').textContent = title;
+      document.getElementById('result-text').textContent = text;
+      
+      // Показываем статистику
+      const stats = document.getElementById('result-stats');
+      const totalDays = currentHabit.totalCompleted + currentHabit.totalSkipped;
+      const successRate = totalDays > 0 ? (currentHabit.totalCompleted / totalDays * 100) : 0;
+      
+      stats.innerHTML = `
+        <p>📊 Ваша статистика:</p>
+        <p>✅ Выполнено: ${currentHabit.totalCompleted} дней</p>
+        <p>❌ Пропущено: ${currentHabit.totalSkipped} дней (лимит: ${currentHabit.maxSkips})</p>
+        <p>🏆 Успешность: ${Math.round(successRate)}%</p>
+        ${!success && currentHabit.daysSkipped > currentHabit.maxSkips ? 
+          `<p>⚠️ Причина срыва: превышен лимит пропусков</p>` : ''}
+        ${currentHabit.deletedAsFailure ? `<p>🗑️ Челлендж удалён как срыв (прошло более 12 часов)</p>` : ''}
+      `;
+      
+      showScreen('result');
+    }
+    
+    // Показ результата для завершённого челленджа
+    function showResultForCompleted(index) {
+      const challenge = allChallenges[index];
+      const totalDays = challenge.totalCompleted + challenge.totalSkipped;
+      const successRate = totalDays > 0 ? 
+        Math.round((challenge.totalCompleted / totalDays) * 100) : 0;
+      
+      // Успех только если 100% успешность И не превышен лимит пропусков И не удалён как срыв
+      const success = successRate === 100 && challenge.daysSkipped <= challenge.maxSkips && !challenge.deletedAsFailure;
+      
+      const title = success ? '🎉 Выполнено!' : '💀 Срыв';
+      let text = `Челлендж: «${challenge.title}»`;
+      
+      if (!success) {
+        text += ` • ${challenge.bet} ₽ (виртуально) `;
+        text += challenge.mode === 'charity'
+          ? 'отправлены на благотворительность. ❤️'
+          : 'ушли в общий котёл. 🎲';
+          
+        // Если срыв из-за превышения лимита пропусков
+        if (challenge.daysSkipped > challenge.maxSkips) {
+          text += `\n\nПричина срыва: превышен лимит пропусков (допустимо: ${challenge.maxSkips}, пропущено: ${challenge.daysSkipped}).`;
+        }
+        
+        // Если срыв из-за удаления после 12 часов
+        if (challenge.deletedAsFailure) {
+          text += `\n\nПричина срыва: челлендж удалён через 12 часов после создания.`;
+        }
+      }
+      
+      document.getElementById('result-title').textContent = title;
+      document.getElementById('result-text').textContent = text;
+      
+      // Показываем статистику
+      const stats = document.getElementById('result-stats');
+      
+      stats.innerHTML = `
+        <p>📊 Статистика челленджа:</p>
+        <p>✅ Выполнено: ${challenge.totalCompleted} дней</p>
+        <p>❌ Пропущено: ${challenge.totalSkipped} дней (лимит: ${challenge.maxSkips})</p>
+        <p>${success ? '🏆 Успешность: 100%' : '💀 Успешность: ' + successRate + '%'}</p>
+        <p>📅 Начало: ${new Date(challenge.startDate).toLocaleDateString('ru-RU')}</p>
+        ${success ? 
+          '<p>🎉 Отличный результат! Все дни выполнены в рамках лимита пропусков!</p>' : 
+          `<p>😔 Челлендж не выполнен ${challenge.daysSkipped > challenge.maxSkips ? 'из-за превышения лимита пропусков' : 
+            challenge.deletedAsFailure ? 'из-за удаления после 12 часов' : 'полностью'}</p>`
+        }
+      `;
+      
+      showScreen('result');
+    }
+    
+    // Утилиты
+    function showScreen(name) {
+      Object.values(screens).forEach(s => {
+        if (s !== screens.auth && s !== screens.main) {
+          s.classList.add('hidden');
+        }
+      });
+      screens[name].classList.remove('hidden');
+    }
+    
+    // Сохранение данных пользователя
+    function saveUserChallenges() {
+      const userData = getCurrentUserData();
+      if (userData) {
+        userData.challenges = allChallenges;
+        userData.avatar = userAvatar;
+        saveCurrentUserData(userData);
+      }
+    }
+    
+    // Загрузка данных пользователя
+    function loadUserData() {
+      const userData = getCurrentUserData();
+      if (userData) {
+        allChallenges = userData.challenges || [];
+        userAvatar = userData.avatar || null;
+      } else {
+        allChallenges = [];
+        userAvatar = null;
+      }
+    }
+    
+    // ==================== ОБРАБОТЧИКИ СОБЫТИЙ ====================
+    
+    // Инициализация обработчиков событий
+    function initEventHandlers() {
+      // Переключение между вкладками входа и регистрации
+      document.querySelectorAll('.auth-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabName = tab.dataset.tab;
+          
+          // Убираем активный класс у всех вкладок
+          document.querySelectorAll('.auth-tab').forEach(t => {
+            t.classList.remove('active');
+          });
+          
+          // Добавляем активный класс текущей вкладке
+          tab.classList.add('active');
+          
+          // Скрываем все формы
+          document.querySelectorAll('.auth-form').forEach(form => {
+            form.classList.remove('active');
+          });
+          
+          // Показываем соответствующую форму
+          document.getElementById(`${tabName}-form`).classList.add('active');
+          
+          // Очищаем сообщения об ошибках
+          document.getElementById('login-error').classList.remove('show');
+          document.getElementById('register-error').classList.remove('show');
+          document.getElementById('register-success').classList.remove('show');
+        });
+      });
+      
+      // Переход к регистрации
+      document.getElementById('switch-to-register').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelector('.auth-tab[data-tab="register"]').click();
+      });
+      
+      // Переход ко входу
+      document.getElementById('switch-to-login').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelector('.auth-tab[data-tab="login"]').click();
+      });
+      
+      // Кнопка входа
+      document.getElementById('btn-login').addEventListener('click', () => {
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value.trim();
+        const errorElement = document.getElementById('login-error');
+        
+        // Валидация
+        if (!email || !password) {
+          errorElement.textContent = 'Заполните все поля';
+          errorElement.classList.add('show');
+          return;
+        }
+        
+        // Попытка входа
+        const result = loginUser(email, password);
+        
+        if (result.success) {
+          // Успешный вход
+          loadUserData();
+          screens.auth.classList.add('hidden');
+          screens.main.classList.remove('hidden');
+          initializeApp();
+        } else {
+          // Ошибка входа
+          errorElement.textContent = result.message;
+          errorElement.classList.add('show');
+        }
+      });
+      
+      // Кнопка регистрации
+      document.getElementById('btn-register').addEventListener('click', () => {
+        const username = document.getElementById('register-username').value.trim();
+        const email = document.getElementById('register-email').value.trim();
+        const password = document.getElementById('register-password').value.trim();
+        const confirmPassword = document.getElementById('register-confirm-password').value.trim();
+        const errorElement = document.getElementById('register-error');
+        const successElement = document.getElementById('register-success');
+        
+        // Валидация
+        if (!username || !email || !password || !confirmPassword) {
+          errorElement.textContent = 'Заполните все поля';
+          errorElement.classList.add('show');
+          return;
+        }
+        
+        if (password !== confirmPassword) {
+          errorElement.textContent = 'Пароли не совпадают';
+          errorElement.classList.add('show');
+          return;
+        }
+        
+        // Попытка регистрации
+        const result = registerUser(username, email, password);
+        
+        if (result.success) {
+          // Успешная регистрация
+          successElement.textContent = result.message;
+          successElement.classList.add('show');
+          errorElement.classList.remove('show');
+          
+          // Автоматический вход после регистрации
+          setTimeout(() => {
+            const loginResult = loginUser(email, password);
+            if (loginResult.success) {
+              loadUserData();
+              screens.auth.classList.add('hidden');
+              screens.main.classList.remove('hidden');
+              initializeApp();
+            }
+          }, 1000);
+        } else {
+          // Ошибка регистрации
+          errorElement.textContent = result.message;
+          errorElement.classList.add('show');
+          successElement.classList.remove('show');
+        }
+      });
+      
+      // Кнопка выхода в личном кабинете
+      document.getElementById('btn-profile-logout').addEventListener('click', () => {
+        logoutUser();
+        screens.auth.classList.remove('hidden');
+        screens.main.classList.add('hidden');
+        
+        // Очищаем поля форм
+        document.getElementById('login-email').value = '';
+        document.getElementById('login-password').value = '';
+        document.getElementById('register-username').value = '';
+        document.getElementById('register-email').value = '';
+        document.getElementById('register-password').value = '';
+        document.getElementById('register-confirm-password').value = '';
+        
+        // Показываем форму входа
+        document.querySelector('.auth-tab[data-tab="login"]').click();
+      });
+      
+      // Основные кнопки приложения
+      document.getElementById('btn-new').onclick = () => {
+        // Проверяем лимит перед показом экрана создания
+        const activeChallenges = allChallenges.filter(c => c.isActive);
+        if (activeChallenges.length >= MAX_CHALLENGES) {
+          document.getElementById('challenge-limit-warning').style.display = 'block';
+        } else {
+          document.getElementById('challenge-limit-warning').style.display = 'none';
+        }
+        showScreen('create');
+      };
+      
+      document.getElementById('btn-view-challenges').onclick = () => {
+        renderChallengesList();
+        showScreen('challenges');
+      };
+      
+      document.getElementById('btn-view-all-challenges').onclick = () => {
+        renderChallengesList();
+        showScreen('challenges');
+      };
+      
+      document.getElementById('btn-to-challenges').onclick = () => {
+        renderChallengesList();
+        showScreen('challenges');
+      };
+      
+      document.getElementById('btn-add-new-challenge').onclick = () => {
+        // Проверяем лимит перед показом экрана создания
+        const activeChallenges = allChallenges.filter(c => c.isActive);
+        if (activeChallenges.length >= MAX_CHALLENGES) {
+          document.getElementById('challenge-limit-warning').style.display = 'block';
+        } else {
+          document.getElementById('challenge-limit-warning').style.display = 'none';
+        }
+        showScreen('create');
+      };
+      
+      document.getElementById('btn-back-from-challenges').onclick = () => {
+        showScreen('start');
+      };
+      
+      document.getElementById('btn-create-cancel').onclick = () => showScreen('start');
+      document.getElementById('btn-new-again').onclick = () => {
+        currentHabitIndex = -1;
+        showScreen('start');
+      };
+      
+      // Кнопка справки
+      document.getElementById('btn-help').onclick = () => {
+        helpModal.classList.remove('hidden');
+      };
+      
+      // Кнопка закрытия справки
+      document.getElementById('btn-close-help').onclick = () => {
+        helpModal.classList.add('hidden');
+      };
+      
+      // Кнопка личного кабинета
+      document.getElementById('btn-profile').onclick = () => {
+        renderProfile();
+        showScreen('profile');
+      };
+      
+      // Кнопка назад из личного кабинета
+      document.getElementById('btn-back-from-profile').onclick = () => {
+        showScreen('start');
+      };
+      
+      // Кнопка аватара
+      document.getElementById('btn-avatar').onclick = () => {
+        document.getElementById('avatar-input').click();
+      };
+      
+      // Обработка выбора файла аватара
+      document.getElementById('avatar-input').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            userAvatar = e.target.result;
+            saveUserChallenges();
+            updateAvatarDisplay();
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+      
+      // Кнопки модального окна удаления
+      document.getElementById('btn-confirm-delete').onclick = () => {
+        deleteChallenge(challengeToDeleteIndex);
+        hideDeleteModal();
+        renderChallengesList();
+      };
+      
+      document.getElementById('btn-cancel-delete').onclick = () => {
+        hideDeleteModal();
+      };
+      
+      // Кнопки модального окна изменения логина
+      document.getElementById('btn-save-login').onclick = () => {
+        handleLoginChange();
+      };
+      
+      document.getElementById('btn-cancel-login').onclick = () => {
+        hideChangeLoginModal();
+      };
+      
+      // Обновление лимита пропусков при изменении количества тренировок
+      document.getElementById('days-input').addEventListener('input', updateSkipLimitInfo);
+      
+      // Отметить выполнение
+      document.getElementById('btn-mark-done').onclick = () => {
+        markDay('completed');
+      };
+      
+      // Отметить пропуск
+      document.getElementById('btn-mark-skipped').onclick = () => {
+        markDay('skipped');
+      };
+      
+      // Сдаться
+      document.getElementById('btn-give-up').onclick = () => {
+        if (confirm('Вы уверены? Это полный срыв. Ставка будет "потеряна".')) {
+          const currentHabit = allChallenges[currentHabitIndex];
+          currentHabit.history.unshift({
+            date: new Date().toISOString().split('T')[0],
+            status: 'gave-up',
+            timestamp: new Date().toISOString()
+          });
+          showResult(false);
+          currentHabit.isActive = false;
+          currentHabit.deletedAsFailure = false; // Это не удаление, а сдача
+          saveUserChallenges();
+        }
+      };
+      
+      // Создание челленджа
+      document.getElementById('btn-create-confirm').onclick = () => {
+        // Проверяем лимит активных челленджей
+        const activeChallenges = allChallenges.filter(c => c.isActive);
+        if (activeChallenges.length >= MAX_CHALLENGES) {
+          alert(`Достигнут лимит в ${MAX_CHALLENGES} активных челленджей. Завершите один из текущих, чтобы начать новый.`);
+          return;
+        }
+        
+        const exercise = document.getElementById('exercise-select').value;
+        const reps = parseInt(document.getElementById('reps-input').value) || 0;
+        const sets = parseInt(document.getElementById('sets-input').value) || 0;
+        const daysPerWeek = parseInt(document.getElementById('days-input').value) || 3;
+        const bet = parseInt(document.getElementById('bet-input').value) || 0;
+        const mode = document.getElementById('mode-select').value;
+        
+        // Проверка лимитов
+        if (reps > 30) {
+          alert('Максимальное количество повторений в подходе: 30');
+          return;
+        }
+        
+        if (sets > 15) {
+          alert('Максимальное количество подходов за тренировку: 15');
+          return;
+        }
+        
+        // ИЗМЕНЕНО: проверка нового диапазона (3-6 вместо 1-6)
+        if (daysPerWeek < 3 || daysPerWeek > 6) {
+          alert('Количество тренировок в неделю должно быть от 3 до 6');
+          return;
+        }
+        
+        if (bet > 1500) {
+          alert('Максимальная ставка: 1500 ₽');
+          return;
+        }
+        
+        if (!exercise || reps <= 0 || sets <= 0 || daysPerWeek <= 0) {
+          alert('Заполните все поля корректно!');
+          return;
+        }
+        
+        // Формируем понятную цель
+        let habitText = `${exercise}: ${sets} подход(ов) по ${reps} раз`;
+        if (['Бег', 'Ходьба', 'Планка'].includes(exercise)) {
+          // Для времени/дистанции можно адаптировать, но пока оставим как есть
+        }
+        habitText += `, ${daysPerWeek} раз(а) в неделю`;
+        
+        // Рассчитываем максимальное количество пропусков
+        const maxSkips = calculateMaxSkips(daysPerWeek);
+        
+        const newChallenge = {
+          id: Date.now(), // Уникальный ID
+          title: habitText,
+          exercise,
+          reps,
+          sets,
+          daysPerWeek,
+          maxSkips, // Сохраняем максимальное количество пропусков
+          bet,
+          mode,
+          startDate: new Date().toISOString().split('T')[0],
+          daysDone: 0,
+          daysSkipped: 0,
+          totalDays: 7, // недельный цикл
+          isActive: true,
+          lastMarked: null,
+          history: [],
+          totalCompleted: 0,
+          totalSkipped: 0,
+          createdAt: new Date().toISOString(),
+          deletedAsFailure: false // Флаг, указывающий что челлендж был удалён как срыв
+        };
+        
+        // Добавляем новый челлендж в массив
+        allChallenges.push(newChallenge);
+        currentHabitIndex = allChallenges.length - 1;
+        
+        saveUserChallenges();
+        renderActiveHabit();
+        showScreen('active');
+      };
+    }
+    
+    // Инициализация приложения после входа
+    function initializeApp() {
+      // Инициализируем информацию о лимите пропусков
+      updateSkipLimitInfo();
+      
+      initFilters();
+      
+      // Если есть активные челленджи, показываем список, иначе начальный экран
+      const activeChallenges = allChallenges.filter(c => c.isActive);
+      if (activeChallenges.length > 0) {
+        renderChallengesList();
+        showScreen('challenges');
+        
+        // Находим последний активный челлендж (по дате создания)
+        const lastActiveIndex = allChallenges.findIndex(c => 
+          c.id === activeChallenges[activeChallenges.length - 1].id
+        );
+        currentHabitIndex = lastActiveIndex;
+      } else {
+        // Показываем начальный экран
+        showScreen('start');
+      }
+    }
+    
+    // Основная инициализация при загрузке страницы
+    function init() {
+      initEventHandlers();
+      
+      // Проверяем, вошел ли пользователь
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        loadUserData();
+        screens.auth.classList.add('hidden');
+        screens.main.classList.remove('hidden');
+        initializeApp();
+      } else {
+        screens.auth.classList.remove('hidden');
+        screens.main.classList.add('hidden');
+      }
+    }
+    
+    // Запускаем инициализацию при загрузке страницы
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
